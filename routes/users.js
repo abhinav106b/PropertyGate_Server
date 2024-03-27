@@ -15,7 +15,7 @@ router.get('/', function(req, res, next) {
 router.post('/register',async (req,res,next)=>{
   let userpayload = new Object();
   let f;
-  helper.validate.user.map((each)=>{
+  helper.validate.user.map((each)=>{ //validating the user payload
     if(!req.body[each]){
       f=1;
     }
@@ -30,17 +30,19 @@ router.post('/register',async (req,res,next)=>{
   else{
   let hashPassword = await authenticate.createPasswordHash(userpayload.password);
   userpayload.password = hashPassword
-  Users.create(userpayload)
+
+  Users.create(userpayload)  //User is created
   .then(async(succ)=>{
     let token = authenticate.getToken(succ._id,succ.email);
     res.statusCode=200;
     res.send({token: token, message: "Regitered Successfully"})
-    let profilePayload = new Object();
+
+    let profilePayload = new Object(); // creating payload for profile using helper
     helper.validate.profile.map((each)=>{
       profilePayload[each] = req.body[each]
     })
     profilePayload["userId"] = succ._id;
-    await Profiles.create(profilePayload)
+    await Profiles.create(profilePayload) // profile is created
   })
   .catch((err)=>{
     console.log(err)
@@ -52,11 +54,11 @@ router.post('/register',async (req,res,next)=>{
 router.post('/login',async(req,res,next)=>{
   let email = req.body.email;
   let password = req.body.password;
-  Users.findOne({email: email})
+  Users.findOne({email: email}) // checks whether the user is present
   .then(async(rsp)=>{
     console.log(rsp)
     let match = await authenticate.verifyPassword(password,rsp.password);
-    if(match){
+    if(match){                  //if present then checks the password if true then token is created
       let token = authenticate.getToken(rsp._id,rsp.email);
       res.statusCode =200;
       res.send({token: token, message:"Login Success"})
@@ -75,7 +77,7 @@ router.post('/login',async(req,res,next)=>{
 
 router.post('/logout',authenticate.verifyToken,async(req,res,next)=>{
 
-  authenticate.blackListToken(req.token)
+  authenticate.blackListToken(req.token) // token is blacklisted so that it can't be used again
   res.statusCode =200;
   res.send({message: "Logged out successfully"})
 })
