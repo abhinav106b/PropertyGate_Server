@@ -1,15 +1,41 @@
 exports.validate ={
     user:[
-        "phone",
-        "email",
+        "firstName",
+        "lastName",
         "password",
-        "name"
+        "email",
+        "role",
+        "phone"
     ],
-    profile:[
-        "name",
-        'bio',
-        'imageUrl',
-        'email',
-        'phone'
+    property:[
+        "price",
+        'aptType',
+        'location',
+        'title',
+        'description',
+        'bathrooms',
+        'likeCount',
+        'image'
+    ]
+}
+exports.response={
+    user:[
+        "firstName",
+        "lastName",
+        "email",
+        "role",
+        "phone"
+    ]
+}
+
+exports.pathData ={
+    property:[
+        "price",
+        'aptType',
+        'location',
+        'title',
+        'description',
+        'bathrooms',
+        'image'
     ]
 }

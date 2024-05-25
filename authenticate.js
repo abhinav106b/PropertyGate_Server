@@ -1,11 +1,11 @@
 const jwt = require('jsonwebtoken')
 const secretKey= process.env.SECRET_KEY
 const bcrypt = require('bcrypt')
-var Profile = require('./models/profile');
+var Profile = require('./models/property');
+var User = require('./models/user');
 
 let blacklist = new Set();
 
-var adminList = ["admin@gmail.com"];
 
 exports.getToken = (userId, email) =>{
     var token = jwt.sign({userId: userId, email: email},secretKey,{expiresIn: 3600}) // token is signed with userid and email
@@ -14,18 +14,23 @@ exports.getToken = (userId, email) =>{
 
 exports.verifyToken =(req,res,next)=>{
     let token = req.headers['authorization']; //extracts the token from headers
+    if(!token){
+        return res.status(401).json("Token missing: please register or login")
+    }
     token =token.replace("Bearer ","")
     if(!token){
-        return res.status(403).json({error: "Token not provided"})
+        return res.status(401).json({error: "Please login"})
     }
     if(blacklist.has(token)){ // checks if the token is in blacklist or not
         return res.status(401).json({message:"Please login "})
     }
     else{
-        jwt.verify(token,secretKey,(err,decoded)=>{
+        jwt.verify(token,secretKey,async(err,decoded)=>{
             if(err){
-                return res.status(401).json({error: "Unauthorized"})
+                return res.status(401).json({error: "Please login Unauthorized"})
             }
+            let role = await User.findById(decoded.userId);
+            req.role = role.role;
             req.user= decoded.userId
             req.token = token
             next();
@@ -50,16 +55,12 @@ exports.blackListToken = async(token)=>{
     return true
 }
 
-exports.verifyAdmin = async(req,res,next)=>{
-    let pr = await Profile.findOne({userId: req.user}); // checks if the useris is present in the profile
-    if (pr.admin){ //if present then checks the admin field if it is true then access is given 
-        next()
-    }
-    else if (adminList.includes(pr.email)){ //else checks is that particular email id is in admin list
-        await Profile.findOneAndUpdate({userId: req.user},{admin: true}); // if true then access is given
-        next()
+exports.verifySeller= async(req,res,next)=>{
+    let role = await User.findById(req.user);
+    if(role && role.role == 'seller'){
+        next();
     }
     else{
-        return res.status(401).json({message: "Only admind are allowed to access this data"})
+        return res.status(401).json({message: "Only seller are allowed to post the property"})
     }
 }

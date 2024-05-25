@@ -1,6 +1,7 @@
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
+var cors = require('cors')
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 require('dotenv').config();
@@ -11,7 +12,7 @@ const swaggerDocument = require('./swagger-output.json');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var authRouter = require('./routes/googleAuth');
-var profileRouter = require('./routes/profiles');
+var propertyRouter = require('./routes/property');
 
 //connecting to database
 var mongoose = require('mongoose');
@@ -22,6 +23,8 @@ mongoose.connect(dbUrl).then((db)=>{
 },(err)=>{console.log(err);});
 
 var app = express();
+
+app.use(cors());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -36,7 +39,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
-app.use('/profile',profileRouter);
+app.use('/property',propertyRouter);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 

@@ -3,7 +3,7 @@ const axios = require('axios');
 var authenticate = require('../authenticate');
 var router = express.Router();
 const User = require('../models/user');
-const Profile = require('../models/profile');
+const Profile = require('../models/property');
 
 router.get('/google', (req, res,next) => {
     const { client_id, redirect_uri, response_type } = process.env;

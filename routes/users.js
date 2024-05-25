@@ -4,13 +4,39 @@ var bodyParser = require('body-parser');
 router.use(bodyParser.json());
 var authenticate = require('../authenticate');
 const Users = require('../models/user');
-const Profiles = require('../models/profile');
 var helper = require('../helper');
+const Property = require('../models/property');
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+
+router.get('/:id', authenticate.verifyToken,async function (req, res, next) {  //here id represents seller id of the clicked property
+  Users.findById(req.params.id)
+  .then((user)=>{
+    let data = new Object();
+    helper.response.user.map((each)=>{
+      data[each] = user[each]
+    })
+    res.statusCode = 200;
+    res.json({message: "success",data: data});
+  })
+  .catch((err)=>{
+    next(err);
+  })
 });
+
+router.get('/',authenticate.verifyToken,async function(req,res,next){
+  Users.findById(req.user)
+  .then((succ)=>{
+    let data= new Object();
+    helper.response.user.map((each)=>{
+      data[each]= succ[each]
+    })
+    res.statusCode=200;
+    res.json({message:"Success",data: data})
+  })
+  .catch((err)=>{
+    next(err)
+  })
+})
 
 router.post('/register',async (req,res,next)=>{
   let userpayload = new Object();
@@ -36,13 +62,6 @@ router.post('/register',async (req,res,next)=>{
     let token = authenticate.getToken(succ._id,succ.email);
     res.statusCode=200;
     res.send({token: token, message: "Regitered Successfully"})
-
-    let profilePayload = new Object(); // creating payload for profile using helper
-    helper.validate.profile.map((each)=>{
-      profilePayload[each] = req.body[each]
-    })
-    profilePayload["userId"] = succ._id;
-    await Profiles.create(profilePayload) // profile is created
   })
   .catch((err)=>{
     console.log(err)
@@ -74,6 +93,7 @@ router.post('/login',async(req,res,next)=>{
     next(error);
   })
 })
+
 
 router.post('/logout',authenticate.verifyToken,async(req,res,next)=>{
 

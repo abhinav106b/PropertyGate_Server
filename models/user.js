@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 var userSchema = new Schema({
     phone:{
         type: String,
+        required: true
     },
     email:{
         type: String,
@@ -13,8 +14,17 @@ var userSchema = new Schema({
     password:{
         type: String,
     },
-    googleId:{
-        type: String
+    firstName:{
+        type: String,
+        required: true
+    },
+    lastName:{
+        type: String,
+        required: true
+    },
+    role:{
+        type: String,
+        required: true
     }
 },{
     timestamps: true
