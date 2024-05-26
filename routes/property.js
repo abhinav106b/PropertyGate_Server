@@ -14,7 +14,7 @@ const imageArr=["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXX99tUbg
     "https://www.apartments.com/blog/sites/default/files/styles/large/public/image/2023-06/the-huntley-atlanta-ga-luxury-apartment-view.jpg?itok=l26TswZZ"
 ]
 
-router.post('/',authenticate.verifyToken,(req,res,next)=>{
+router.post('/',authenticate.verifyToken,(req,res,next)=>{ //Add property 
     if(req.role == 'seller'){
         let propertyPayload = new Object();
         helper.validate.property.map((each)=>{
@@ -38,7 +38,7 @@ router.post('/',authenticate.verifyToken,(req,res,next)=>{
     }
 })
 
-router.patch('/:id',authenticate.verifyToken,async(req,res,next)=>{
+router.patch('/:id',authenticate.verifyToken,async(req,res,next)=>{ //Edit property
     if(req.role == 'seller'){
         let match = await Property.findById(req.params.id);
         if(match.sellerId == req.user){
@@ -68,7 +68,7 @@ router.patch('/:id',authenticate.verifyToken,async(req,res,next)=>{
     }
 })
 
-router.delete('/:id',authenticate.verifyToken,async(req,res,next)=>{
+router.delete('/:id',authenticate.verifyToken,async(req,res,next)=>{ // delete property
     if(req.role == 'seller'){
         let match = await Property.findById(req.params.id);
         if(match.sellerId == req.user){
@@ -93,13 +93,13 @@ router.delete('/:id',authenticate.verifyToken,async(req,res,next)=>{
     }
 })
 
-router.get('/',async(req,res,next)=>{
+router.get('/',async(req,res,next)=>{  // Show all property
     let propertyData = await Property.find({})
     res.statusCode = 200;
     res.json({message: "Success",data: propertyData});
 })
 
-router.get('/seller',authenticate.verifyToken,(req,res,next)=>{
+router.get('/seller',authenticate.verifyToken,(req,res,next)=>{ // View property only for sellers
     if(req.role == 'seller'){
         Property.find({sellerId: req.user})
         .then((succ)=>{
